@@ -31,7 +31,6 @@ def read_netlist(netlist_path):
     # in the same order, so we save keys
     # TODO make this more memory efficient
     component_keys = []
-    # TODO check file exists
     try:
         infile = open(netlist_path, 'r')
     except FileNotFoundError:
