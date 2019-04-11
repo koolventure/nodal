@@ -32,6 +32,12 @@ def read_netlist(netlist_path):
     # TODO make this more memory efficient
     component_keys = []
     # TODO check file exists
+    try:
+        infile = open(netlist_path, 'r')
+    except FileNotFoundError:
+        logging.error("File does not exist in specified path")
+        print()
+        raise
     with open(netlist_path, 'r') as infile:
         netlist = csv.reader(infile)
         nums = {}
