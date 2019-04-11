@@ -20,9 +20,6 @@ NODE_TYPES_DEP = ["VCVS", "VCCS"] + NODE_TYPES_CC
 NODE_TYPES_ANOM = ["E"] + NODE_TYPES_DEP
 NODE_TYPES = ["A", "R"] + NODE_TYPES_ANOM
 
-# TODO functions should raise an exception and log
-# the error instead of calling exit(1)
-
 def find_ground_node(degrees):
     ground = max(degrees.keys(), key=(lambda x: degrees[x]))
     logging.debug("ground node-> {}".format(ground))
@@ -58,14 +55,11 @@ def read_netlist(netlist_path):
             try:
                 newcomp[VCOL] = float(component[VCOL])
             except ValueError:
-                print((
-                    "Bad input: expected a number"
-                    "for component value of {},"
-                    "got {} instead.").format(
-                        component[NCOL],
-                        component[VCOL])
-                    )
-                exit(1)
+                logging.error("Bad input: expected a number for component value of {} \
+                got {} instead".format(component[NCOL], \
+                component[VCOL]))
+                print()
+                raise
 
             newcomp[ACOL] = component[ACOL]
             newcomp[BCOL] = component[BCOL]
@@ -106,7 +100,7 @@ def read_netlist(netlist_path):
     logging.debug("anomnum={}".format(anomnum))
     # From now on nums shall become immutable
 
-    state = [nums, degrees, anomnum, components, component_keys, ground, nodenum] 
+    state = [nums, degrees, anomnum, components, component_keys, ground, nodenum]
     # TODO these variables should become attributes of an object
     return state
 
@@ -131,8 +125,9 @@ def build_coefficients(state):
             try:
                 conductance = 1 / component[VCOL]
             except ZeroDivisionError:
-                print("Model error: resistors can't have null resistance")
-                exit(1)
+                logging.error(" Model error: resistors can't have null resistance")
+                print()
+                raise
             if anode != ground:
                 G[i,i] += conductance
             if bnode != ground:
@@ -284,7 +279,7 @@ def build_coefficients(state):
             assert G[i,i] == 0
             G[i,i] = 1
             driver = components[component[PCOL]]
-            # case 1: i_driver is unknown 
+            # case 1: i_driver is unknown
             if driver[TCOL] == 'R':
                 cnode = component[CCOL]
                 dnode = component[DCOL]
@@ -308,7 +303,7 @@ def build_coefficients(state):
                     assert driver[ACOL] == component[DCOL]
                     assert driver[BCOL] == component[CCOL]
                     G[i,j] = g
-            # case 2: i_driver is known 
+            # case 2: i_driver is known
             elif driver[TCOL] == 'A':
                 assert A[i] == 0
                 A[i] = g * driver[VCOL]
@@ -328,7 +323,8 @@ def solve_system(G, A):
     except np.linalg.linalg.LinAlgError:
         print("Model error: matrix is singular")
         logging.error(G)
-        exit(1)
+        print()
+        raise
     return e
 
 def print_solution(e, nodenum, nums, currents):
