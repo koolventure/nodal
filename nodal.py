@@ -2,6 +2,7 @@ import numpy as np
 import sys
 import csv
 import logging
+import state as st
 logging.basicConfig(level=logging.DEBUG)
 
 # CSV parsing
@@ -104,13 +105,16 @@ def read_netlist(netlist_path):
     logging.debug("nums={}".format(nums))
     logging.debug("anomnum={}".format(anomnum))
     # From now on nums shall become immutable
-
     state = [nums, degrees, anomnum, components, component_keys, ground, nodenum]
     # TODO these variables should become attributes of an object
+    #state2 is a representation of an object to hold values
+    state2 = st.State(nums, degrees, anomnum, components, component_keys, ground, nodenum)
+    print(type(state2))
     return state
 
 def build_coefficients(state):
     [nums, degrees, anomnum, components, component_keys, ground, nodenum] = state
+    print(type(state))
     n = nums["kcl"] + nums["be"] # number of unknowns
     G = np.zeros(shape=(n, n))
     A = np.zeros(shape=(n, 1))
