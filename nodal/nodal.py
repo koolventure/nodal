@@ -20,7 +20,8 @@ PCOL = 7  # name of the driving component
 
 NODE_TYPES_CC = ["CCCS", "CCVS"]
 NODE_TYPES_DEP = ["VCVS", "VCCS"] + NODE_TYPES_CC
-NODE_TYPES_ANOM = ["E"] + NODE_TYPES_DEP
+NODE_TYPES_OA = ["OpAmp"] + NODE_TYPES_DEP
+NODE_TYPES_ANOM = ["E"] + NODE_TYPES_OA
 NODE_TYPES = ["A", "R"] + NODE_TYPES_ANOM
 
 
@@ -340,6 +341,7 @@ def build_coefficients(state, sparse):
         else:
             logging.error("Unknown component type: {}".format(component[TCOL]))
             raise ValueError("Unknown component type")
+
 
     logging.debug("currents={}".format(currents))
     logging.debug("G=\n{}".format(G))
